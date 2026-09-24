@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feasibility Canvas SPA - Barbershop Jl. Beliang Palangkaraya</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            navy: '#0f172a',
+                            blue: '#1e3a8a',
+                            accent: '#2563eb',
+                            teal: '#0d9488',
+                            danger: '#dc2626',
+                            warning: '#d97706',
+                            success: '#16a34a',
+                            light: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: 320px;
+            max-height: 380px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased leading-relaxed pb-12">
+
+    <!-- HEADER & STATUS BARNER -->
+    <header class="bg-brand-navy text-white shadow-xl border-b-4 border-brand-accent">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div>
+                    <div class="flex items-center gap-2 text-brand-accent text-xs sm:text-sm font-semibold tracking-wider uppercase mb-1">
+                        <span>Mata Kuliah: Studi Kelayakan Bisnis</span>
+                        <span>•</span>
+                        <span>Kelompok 1</span>
+                        <span>•</span>
+                        <span>Palangkaraya</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
+                        FEASIBILITY CANVAS & INFOGRAPHIC
+                    </h1>
+                    <p class="text-slate-300 text-sm sm:text-base mt-1 font-medium">
+                        Evaluasi Kelayakan Bisnis Barbershop Jl. Beliang (Depan STIKES Palangkaraya)
+                    </p>
+                </div>
+                
+                <!-- Decision Badge -->
+                <div class="bg-rose-950/80 border-2 border-rose-500 rounded-xl p-4 sm:p-5 flex flex-col items-center justify-center text-center shadow-lg min-w-[260px]">
+                    <span class="text-xs font-bold uppercase tracking-widest text-rose-300">Keputusan Kelayakan</span>
+                    <span class="text-2xl sm:text-3xl font-black text-rose-400 my-1 tracking-wider">REVISE</span>
+                    <span class="text-xs font-semibold text-rose-200 bg-rose-900/60 px-3 py-1 rounded-full border border-rose-700">
+                        Belum Layak Direct GO
+                    </span>
+                    <p class="text-[11px] text-slate-300 mt-2 leading-tight">
+                        Baseline 105 cust/bln belum menutup Biaya Tetap. Diperlukan volume ≥242 cust/bln (@Rp50rb) untuk mencapai BEP.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-10">
+
+        <!-- INTERACTIVE SCENARIO SIMULATOR -->
+        <section class="bg-white rounded-2xl shadow-md border border-slate-200 p-6">
+            <div class="border-b border-slate-100 pb-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-brand-navy flex items-center gap-2">
+                        <span>🎛️</span> Simulator Interaktif Volume & Dampak Finansial
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                        Geser volume pelanggan bulanan atau pilih skenario cepat untuk melihat proyeksi omzet, operating cash flow (OCF), dan status kelayakan operasional secara real-time.
+                    </p>
+                </div>
+                
+                <!-- Quick Preset Buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="setScenario(105, 50000)" class="px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all">
+                        Baseline [W] (105 Cust)
+                    </button>
+                    <button onclick="setScenario(242, 50000)" class="px-3 py-1.5 text-xs font-bold rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 transition-all">
+                        Titik BEP (242 Cust)
+                    </button>
+                    <button onclick="setScenario(375, 50000)" class="px-3 py-1.5 text-xs font-bold rounded-lg border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-800 transition-all">
+                        Proyeksi [E] (375 Cust)
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <!-- Controls -->
+                <div class="lg:col-span-6 space-y-6">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs sm:text-sm font-bold text-slate-700">Volume Pelanggan Bulanan:</label>
+                            <span id="slider-vol-val" class="text-base font-extrabold text-brand-accent">375 Pelanggan</span>
+                        </div>
+                        <input id="slider-vol" type="range" min="80" max="500" step="5" value="375" oninput="updateSimulation()" class="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-accent">
+                        <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                            <span>80 (Sangat Rugi)</span>
+                            <span>105 (Baseline [W])</span>
+                            <span>242 (BEP @50k)</span>
+                            <span>375 (Target [E])</span>
+                            <span>500 (Kapasitas Maks)</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs sm:text-sm font-bold text-slate-700 block mb-2">Skema Harga Layanan:</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-slate-50 transition-all">
+                                <input type="radio" name="sim-price" value="40000" onchange="updateSimulation()" class="text-brand-accent focus:ring-brand-accent">
+                                <div class="ml-3">
+                                    <span class="block text-xs font-bold text-slate-800">Rp40.000 / cust</span>
+                                    <span class="block text-[10px] text-slate-500">Konservatif [D]</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 border rounded-xl border-brand-accent/40 bg-blue-50/30 cursor-pointer hover:bg-blue-50 transition-all">
+                                <input type="radio" name="sim-price" value="50000" checked onchange="updateSimulation()" class="text-brand-accent focus:ring-brand-accent">
+                                <div class="ml-3">
+                                    <span class="block text-xs font-bold text-slate-800">Rp50.000 / cust</span>
+                                    <span class="block text-[10px] text-slate-500">Optimistis [W]</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Results Box -->
+                <div class="lg:col-span-6 bg-slate-900 rounded-xl p-6 text-white space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                        <span class="text-xs text-slate-400 uppercase font-semibold">Hasil Proyeksi Bulanan</span>
+                        <span id="sim-status-badge" class="px-2.5 py-1 rounded-md text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            PROFITABEL
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-[11px] text-slate-400 block">Omzet Kotor:</span>
+                            <span id="sim-revenue" class="text-lg font-bold text-white">Rp18.750.000</span>
+                        </div>
+                        <div>
+                            <span class="text-[11px] text-slate-400 block">Biaya Variabel (Komisi):</span>
+                            <span id="sim-varcost" class="text-lg font-bold text-slate-300">Rp9.375.000</span>
+                        </div>
+                        <div>
+                            <span class="text-[11px] text-slate-400 block">Biaya Tetap Bulanan:</span>
+                            <span class="text-lg font-bold text-rose-300">Rp6.046.667</span>
+                        </div>
+                        <div>
+                            <span class="text-[11px] text-slate-400 block">Operating Cash Flow (OCF):</span>
+                            <span id="sim-ocf" class="text-xl font-extrabold text-emerald-400">+Rp3.328.333</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 text-[11px] text-slate-400 border-t border-slate-800 flex justify-between items-center">
+                        <span>Margin Kontribusi/Cust: <strong id="sim-cm-val" class="text-white">Rp25.000</strong></span>
+                        <span>Tahunan OCF: <strong id="sim-ocf-annual" class="text-emerald-400">+Rp39.94 Jt</strong></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 1: EXECUTIVE KPI SUMMARY & FEASIBILITY GAP -->
+        <section class="space-y-6">
+            <div class="border-l-4 border-brand-accent pl-4">
+                <h2 class="text-xl sm:text-2xl font-bold text-brand-navy">1. Ringkasan Eksekutif & Analisis Celah Kelayakan (Feasibility Gap)</h2>
+                <p class="text-slate-600 text-sm mt-1">
+                    Analisis membandingkan kondisi riil operasional saat ini (Baseline Aktual 105 pelanggan/bulan berdasarkan Wawancara [W]) terhadap Target Proyeksi (375 pelanggan/bulan berdasarkan Estimasi Survei [E]) untuk mengukur ambang batas kelayakan usaha (BEP).
+                </p>
+            </div>
+
+            <!-- KPI Cards Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase">Baseline Aktual</span>
+                    <div class="my-2">
+                        <span class="text-2xl font-extrabold text-rose-600">105</span>
+                        <span class="text-xs font-semibold text-slate-600"> cust/bln</span>
+                    </div>
+                    <span class="text-[10px] text-rose-700 font-medium bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                        Rugi Operasional
+                    </span>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase">Titik BEP (@50k)</span>
+                    <div class="my-2">
+                        <span class="text-2xl font-extrabold text-amber-600">242</span>
+                        <span class="text-xs font-semibold text-slate-600"> cust/bln</span>
+                    </div>
+                    <span class="text-[10px] text-amber-700 font-medium bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                        Target Minimal GO
+                    </span>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase">Skenario Proyeksi</span>
+                    <div class="my-2">
+                        <span class="text-2xl font-extrabold text-brand-accent">375</span>
+                        <span class="text-xs font-semibold text-slate-600"> cust/bln</span>
+                    </div>
+                    <span class="text-[10px] text-blue-700 font-medium bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                        Estimasi Stage 2 [E]
+                    </span>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase">Proyeksi OCF</span>
+                    <div class="my-2">
+                        <span class="text-xl font-extrabold text-emerald-600">±3,33 Jt</span>
+                        <span class="text-xs font-semibold text-slate-600"> /bln</span>
+                    </div>
+                    <span class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        OCF Skenario 375
+                    </span>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase">Payback Period</span>
+                    <div class="my-2">
+                        <span class="text-2xl font-extrabold text-brand-navy">10,5</span>
+                        <span class="text-xs font-semibold text-slate-600"> bulan</span>
+                    </div>
+                    <span class="text-[10px] text-slate-600 font-medium bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                        Modal Rp35 Jt [E]
+                    </span>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase">NPV / IRR (5 Thn)</span>
+                    <div class="my-2">
+                        <span class="text-lg font-extrabold text-emerald-600">+116,4 Jt</span>
+                        <span class="block text-[10px] font-bold text-slate-500">IRR: 111,4%</span>
+                    </div>
+                    <span class="text-[10px] text-slate-500 font-medium bg-slate-100 px-1.5 py-0.5 rounded">
+                        Disc Rate 10%
+                    </span>
+                </div>
+            </div>
+
+            <!-- Visualization: Feasibility Gap Chart -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-md grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <div class="lg:col-span-7">
+                    <div class="chart-container">
+                        <canvas id="chartGapFeasibility"></canvas>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 space-y-4">
+                    <h3 class="text-base font-bold text-brand-navy border-b border-slate-100 pb-2">
+                        Poin Kunci Gap Kelayakan (Baseline vs Target)
+                    </h3>
+                    <ul class="space-y-3 text-xs sm:text-sm text-slate-600">
+                        <li class="flex items-start gap-2.5">
+                            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-xs">!</span>
+                            <span><strong>Kondisi Aktual (105 Cust):</strong> Omzet bulanan pada harga Rp50rb hanya Rp5,25 Jt, belum sanggup menutup Biaya Tetap sebesar Rp6,05 Jt (Rugi operasional Rp800rb/bln).</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs">✓</span>
+                            <span><strong>Ambang BEP (242 Cust):</strong> Diperlukan lonjakan volume sebesar <strong>+130%</strong> dari baseline aktual agar usaha berada pada posisi imbal hasil impas.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs">★</span>
+                            <span><strong>Skenario Proyeksi (375 Cust):</strong> Jika ekspansi pasar berhasil menarik 375 pelanggan, usaha menghasilkan Arus Kas Operasional (OCF) yang sangat sehat sebesar Rp3,33 Jt/bulan.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: COST BREAKDOWN & MARGIN DYNAMICS -->
+        <section class="space-y-6">
+            <div class="border-l-4 border-brand-teal pl-4">
+                <h2 class="text-xl sm:text-2xl font-bold text-brand-navy">2. Struktur Biaya Operasional & Analisis Margin Kontribusi</h2>
+                <p class="text-slate-600 text-sm mt-1">
+                    Rincian komprehensif seluruh komponen Biaya Tetap (Fixed Costs) bulanan senilai Rp6.046.667 dan perbandingan Margin Kontribusi (Contribution Margin) antara skenario harga konservatif (Rp40rb) dan optimistis (Rp50rb).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Doughnut Chart: Fixed Cost Breakdown -->
+                <div class="lg:col-span-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-md">
+                    <h3 class="text-base font-bold text-brand-navy mb-1">Struktur Biaya Tetap Bulanan (Total: ±Rp6,05 Jt)</h3>
+                    <p class="text-xs text-slate-500 mb-4">Sewa tempat dan gaji pokok kapster mendominasi >52% dari total biaya tetap.</p>
+                    <div class="chart-container">
+                        <canvas id="chartFixedCosts"></canvas>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 grid grid-cols-2 text-xs text-slate-600 gap-2">
+                        <div>• Sewa Tempat: <strong>Rp1.666.667</strong>/bln (20 Jt/thn)</div>
+                        <div>• Gaji Pokok Barber: <strong>Rp1.500.000</strong>/bln [E]</div>
+                        <div>• Biaya Listrik: <strong>Rp1.000.000</strong>/bln [W]</div>
+                        <div>• Maintenance Peralatan: <strong>Rp800.000</strong>/bln [E]</div>
+                    </div>
+                </div>
+
+                <!-- Bar Chart: Contribution Margin Comparison -->
+                <div class="lg:col-span-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-md">
+                    <h3 class="text-base font-bold text-brand-navy mb-1">Sensitivitas Margin Kontribusi per Pelanggan</h3>
+                    <p class="text-xs text-slate-500 mb-4">Dampak komisi barber (Biaya Variabel Rp25rb [E]) terhadap Margin Kontribusi (CM).</p>
+                    <div class="chart-container">
+                        <canvas id="chartMarginCompare"></canvas>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-1">
+                        <p>• <strong>Harga Rp40rb [D]:</strong> CM = Rp15.000/cust (CMR: 37,5%) → Membutuhkan BEP tinggi (404 cust/bln).</p>
+                        <p>• <strong>Harga Rp50rb [W]:</strong> CM = Rp25.000/cust (CMR: 50,0%) → Menurunkan beban BEP menjadi 242 cust/bln.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: FINANCIAL PROJECTIONS & CASH FLOW TRAJECTORY -->
+        <section class="space-y-6">
+            <div class="border-l-4 border-brand-accent pl-4">
+                <h2 class="text-xl sm:text-2xl font-bold text-brand-navy">3. Proyeksi Arus Kas & Pengembalian Investasi (5 Tahun)</h2>
+                <p class="text-slate-600 text-sm mt-1">
+                    Model akumulasi arus kas bersih selama horizon investasi 5 tahun berdasarkan Asumsi Skenario Utama Stage 2 (Modal Awal Rp35 Jt [E], 375 pelanggan/bulan @ Rp50.000, Discount Rate 10%).
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-md grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <div class="lg:col-span-8">
+                    <div class="chart-container">
+                        <canvas id="chartCashFlow5Years"></canvas>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="bg-blue-50/60 rounded-xl p-4 border border-blue-100">
+                        <h4 class="text-xs font-bold text-brand-blue uppercase tracking-wider mb-2">Metrik Keuangan Utama Stage 2</h4>
+                        <dl class="space-y-2 text-xs">
+                            <div class="flex justify-between">
+                                <dt class="text-slate-500">Asumsi Modal Awal [E]:</dt>
+                                <dd class="font-bold text-slate-800">Rp35.000.000</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-slate-500">Alternatif Modal [W]:</dt>
+                                <dd class="font-bold text-slate-800">±Rp100.000.000</dd>
+                            </div>
+                            <div class="flex justify-between border-t border-blue-200/60 pt-1.5">
+                                <dt class="text-slate-600 font-semibold">Payback Period (PP):</dt>
+                                <dd class="font-bold text-brand-accent">±10,5 Bulan</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-slate-600 font-semibold">Net Present Value (NPV):</dt>
+                                <dd class="font-bold text-emerald-600">+Rp116.420.000</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-slate-600 font-semibold">Internal Rate of Return (IRR):</dt>
+                                <dd class="font-bold text-emerald-600">111,4%</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <p class="text-[11px] text-slate-400 italic">
+                        *Catatan Metodologi: Seluruh indikator NPV/IRR bersifat model proyeksi teoritis Stage 2 jika target 375 pelanggan tercapai konsisten, bukan kinerja historis masa lalu.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: STRESS TEST & SENSITIVITY ANALYSIS -->
+        <section class="space-y-6">
+            <div class="border-l-4 border-rose-600 pl-4">
+                <h2 class="text-xl sm:text-2xl font-bold text-brand-navy">4. Uji Ketahanan & Analisis Sensitivitas (Stress Test)</h2>
+                <p class="text-slate-600 text-sm mt-1">
+                    Pengujian ketahanan Arus Kas Operasional (OCF) bulanan terhadap penurunan volume pelanggan (efek libur kampus STIKES) dan potensi kenaikan biaya operasional (inflasi & tarif PLN).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Stress Test Bar Chart -->
+                <div class="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200 shadow-md">
+                    <h3 class="text-base font-bold text-brand-navy mb-1">Dampak Penurunan Volume & Kenaikan Biaya pada OCF</h3>
+                    <p class="text-xs text-slate-500 mb-4">Baseline Normal: 375 pelanggan @ Rp50.000 (OCF Normal: +Rp3,33 Jt/bln).</p>
+                    <div class="chart-container">
+                        <canvas id="chartStressTest"></canvas>
+                    </div>
+                </div>
+
+                <!-- Stress Test Summary Cards -->
+                <div class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200 shadow-md flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-brand-navy border-b border-slate-100 pb-3 mb-4">
+                            Hasil Analisis Ketahanan Bisnis
+                        </h3>
+                        <div class="space-y-3 text-xs">
+                            <div class="p-3 rounded-lg bg-emerald-50 border border-emerald-200 flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-emerald-900 block">Penurunan Volume -10% s.d -20%</span>
+                                    <span class="text-slate-600">338 s.d 300 pelanggan/bulan</span>
+                                </div>
+                                <span class="font-extrabold text-emerald-700 text-sm">+1,45 Jt s.d +2,39 Jt</span>
+                            </div>
+
+                            <div class="p-3 rounded-lg bg-amber-50 border border-amber-200 flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-amber-900 block">Penurunan Volume -30% (Libur Kampus)</span>
+                                    <span class="text-slate-600">263 pelanggan/bulan</span>
+                                </div>
+                                <span class="font-extrabold text-amber-700 text-sm">+Rp0,52 Jt (Kritis)</span>
+                            </div>
+
+                            <div class="p-3 rounded-lg bg-rose-50 border border-rose-200 flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-rose-900 block">Penurunan Volume -40% (Musim Sepi)</span>
+                                    <span class="text-slate-600">225 pelanggan/bulan</span>
+                                </div>
+                                <span class="font-extrabold text-rose-700 text-sm">-Rp0,42 Jt (RUGI)</span>
+                            </div>
+
+                            <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-slate-800 block">Biaya Ops +10% & Vol -10%</span>
+                                    <span class="text-slate-600">Skenario Komposisi Ganda</span>
+                                </div>
+                                <span class="font-bold text-slate-700 text-sm">+Rp0,94 Jt/bln</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-slate-900 text-white rounded-xl text-[11px] leading-relaxed">
+                        <strong>Kesimpulan Sensitivitas:</strong> Usaha sangat rentan terhadap penurunan volume di atas <strong>30%</strong>. Libur semester mahasiswa STIKES merupakan risiko utama yang dapat menghentikan arus kas bersih positif.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: OPERATIONAL MODEL & RISK MATRIX -->
+        <section class="space-y-6">
+            <div class="border-l-4 border-brand-navy pl-4">
+                <h2 class="text-xl sm:text-2xl font-bold text-brand-navy">5. Model Operasional, Alur Layanan & Matriks Risiko</h2>
+                <p class="text-slate-600 text-sm mt-1">
+                    Pemetaan alur pelayanan pelanggan (durasi 25–30 menit/sesi) serta identifikasi 5 risiko utama operasional beserta strategi mitigasinya.
+                </p>
+            </div>
+
+            <!-- Workflow Diagram (Pure HTML/CSS Grid) -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-md space-y-4">
+                <h3 class="text-base font-bold text-brand-navy">Alur Pelayanan Pelanggan (Satu Capster Aktif)</h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 relative">
+                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-brand-accent uppercase">Langkah 1</span>
+                            <h4 class="text-xs font-bold text-slate-800 mt-0.5">Kedatangan</h4>
+                            <p class="text-[11px] text-slate-500 mt-1">Pelanggan datang, disambut, & menuju ruang tunggu ber-AC / WiFi.</p>
+                        </div>
+                        <span class="text-[10px] text-slate-400 mt-2">Durasi: 1–3 mnt</span>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-brand-accent uppercase">Langkah 2</span>
+                            <h4 class="text-xs font-bold text-slate-800 mt-0.5">Konsultasi Model</h4>
+                            <p class="text-[11px] text-slate-500 mt-1">Memilih model gaya rambut (fade, mullet, undercut, taper).</p>
+                        </div>
+                        <span class="text-[10px] text-slate-400 mt-2">Durasi: 2–3 mnt</span>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 p-3.5 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-brand-blue uppercase">Langkah 3 (Inti)</span>
+                            <h4 class="text-xs font-bold text-brand-navy mt-0.5">Proses Haircut</h4>
+                            <p class="text-[11px] text-slate-600 mt-1">Pemotongan rambut presisi oleh kapster berpengalaman.</p>
+                        </div>
+                        <span class="text-[10px] font-semibold text-brand-accent mt-2">Durasi: 20–25 mnt</span>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-brand-accent uppercase">Langkah 4</span>
+                            <h4 class="text-xs font-bold text-slate-800 mt-0.5">Keramas & Pijat</h4>
+                            <p class="text-[11px] text-slate-500 mt-1">Pembersihan sisa rambut + pijat tonik penyegar.</p>
+                        </div>
+                        <span class="text-[10px] text-slate-400 mt-2">Durasi: 5–7 mnt</span>
+                    </div>
+
+                    <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-emerald-700 uppercase">Langkah 5</span>
+                            <h4 class="text-xs font-bold text-emerald-900 mt-0.5">Pembayaran</h4>
+                            <p class="text-[11px] text-slate-600 mt-1">Pembayaran tunai/QRIS + pemberian rekomendasi produk.</p>
+                        </div>
+                        <span class="text-[10px] font-semibold text-emerald-700 mt-2">Total: ±25–30 mnt</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Mitigation Matrix Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">Risiko 1 - Tinggi</span>
+                        <span class="text-[10px] text-slate-400">[W/E]</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-800">STIKES Libur (Vol -30-40%)</h4>
+                    <p class="text-xs text-slate-600"><strong>Mitigasi:</strong> Buat paket promo low-season khusus masyarakat umum & pemasaran ke area kantor/pasar terdekat.</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Risiko 2 - Sedang</span>
+                        <span class="text-[10px] text-slate-400">[E]</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-800">Ketergantungan 1 Capster</h4>
+                    <p class="text-xs text-slate-600"><strong>Mitigasi:</strong> Rekrut & latih kapster cadangan/part-time untuk mencegah bottleneck saat operasional tinggi.</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Risiko 3 - Sedang</span>
+                        <span class="text-[10px] text-slate-400">[W]</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-800">Persaingan Harga Kompetitor</h4>
+                    <p class="text-xs text-slate-600"><strong>Mitigasi:</strong> Pertahankan diferensiasi layanan (AC, WiFi, keramas, kerapian potongan) dibanding pangkas biasa.</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Risiko 4 - Rendah</span>
+                        <span class="text-[10px] text-slate-400">[W/E]</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-800">Kenaikan Biaya Operasional</h4>
+                    <p class="text-xs text-slate-600"><strong>Mitigasi:</strong> Efisiensi penggunaan AC/listrik & pembelian bahan habis pakai secara grosir per 3 bulan.</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2 md:col-span-2 lg:col-span-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">Risiko 5 - Metodologi</span>
+                        <span class="text-[10px] text-slate-400">[A]</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-800">Sensitivitas & Konflik Data Keuangan</h4>
+                    <p class="text-xs text-slate-600"><strong>Mitigasi:</strong> Gunakan asumsi konservatif dalam perencanaan serta lakukan pencatatan pembukuan keuangan yang terpisah dan terstruktur.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: DECISION ROADMAP & STRATEGIC RECOMMENDATIONS -->
+        <section class="space-y-6">
+            <div class="border-l-4 border-rose-600 pl-4">
+                <h2 class="text-xl sm:text-2xl font-bold text-brand-navy">6. Rekomendasi Strategis Menuju Status "GO"</h2>
+                <p class="text-slate-600 text-sm mt-1">
+                    Langkah aksi konkret yang wajib dipenuhi oleh manajemen barbershop untuk mengubah status kelayakan dari REVISE menjadi LAYAK (GO).
+                </p>
+            </div>
+
+            <div class="bg-gradient-to-br from-slate-900 to-brand-navy rounded-2xl p-6 sm:p-8 text-white shadow-xl space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+                    <div>
+                        <span class="text-xs text-rose-400 font-bold uppercase tracking-widest">Status Saat Ini: REVISE</span>
+                        <h3 class="text-xl sm:text-2xl font-extrabold text-white mt-1">Syarat & Peta Jalan Mengejar Kelayakan GO</h3>
+                    </div>
+                    <div class="bg-rose-500/20 border border-rose-500/40 text-rose-300 px-4 py-2 rounded-xl text-xs font-bold text-center">
+                        Target Minimal: ≥242 Pelanggan / Bulan
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-brand-accent text-white flex items-center justify-center font-bold text-xs">1</span>
+                            <h4 class="text-sm font-bold text-white">Akselerasi Akuisisi Volume Pelanggan</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 pl-8">
+                            Gencarkan promosi media sosial (@meetagain_1) & program referral untuk meningkatkan volume dari 105 menuju <strong>minimal 242 pelanggan/bulan</strong>.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-brand-accent text-white flex items-center justify-center font-bold text-xs">2</span>
+                            <h4 class="text-sm font-bold text-white">Pertahankan Struktur Harga Rp50.000</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 pl-8">
+                            Pertahankan skema tarif Rp50rb untuk menjamin Margin Kontribusi (CM) sebesar 50% (Rp25.000/cust) guna menutup Biaya Tetap bulanan.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-brand-accent text-white flex items-center justify-center font-bold text-xs">3</span>
+                            <h4 class="text-sm font-bold text-white">Mitigasi Ketergantungan Capster Tunggal</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 pl-8">
+                            Siapkan kapster pengganti/sistem bagi hasil yang menarik agar operasional tidak terhenti total jika kapster utama berhalangan.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-brand-accent text-white flex items-center justify-center font-bold text-xs">4</span>
+                            <h4 class="text-sm font-bold text-white">Perluas Segmen Non-Mahasiswa</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 pl-8">
+                            Jangkau pekerja RSUD, pegawai kantor, dan warga sekitar pasar untuk menyeimbangkan penurunan volume saat libur kuliah STIKES.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BOTTOM STRIP: METHODOLOGY & DATA TRANSPARENCY -->
+        <footer class="bg-slate-200/80 rounded-xl p-4 border border-slate-300 text-slate-600 text-xs space-y-2">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-300 pb-2">
+                <span class="font-bold text-brand-navy">Catatan Data & Asumsi Metodologi Studi Kelayakan (Stage 2)</span>
+                <span class="text-[11px] text-slate-500 font-mono">Kode Sumber: [W] Wawancara | [O] Observasi | [D] Dokumentasi | [E] Estimasi | [A] Asumsi</span>
+            </div>
+            <p class="text-[11px] leading-relaxed text-slate-600">
+                Sebagian data bersifat sensitif. Terdapat perbedaan data pada harga (Rp40rb [D] vs Rp50rb [W]), volume pelanggan (105 [W] vs 375 [E]), dan modal awal (±Rp35 Jt [E] vs ±Rp100 Jt [W]). Stage 2 menggunakan data yang paling dapat dipertanggungjawabkan sebagai baseline/skenario dan menandai estimasi [E] serta asumsi [A] secara eksplisit.
+            </p>
+        </footer>
+
+    </main>
+
+    <!-- JAVASCRIPT: CHART.JS & INTERACTIVE CALCULATOR -->
+    <script>
+        // Label Wrapping Utility (<= 16 chars per line)
+        function wrapLabel(str, maxChars = 16) {
+            if (!str) return '';
+            if (typeof str !== 'string') return str;
+            if (str.length <= maxChars) return str;
+            const words = str.split(' ');
+            const lines = [];
+            let currentLine = '';
+            words.forEach(word => {
+                if ((currentLine + ' ' + word).trim().length > maxChars) {
+                    if (currentLine) lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine = (currentLine + ' ' + word).trim();
+                }
+            });
+            if (currentLine) lines.push(currentLine.trim());
+            return lines;
+        }
+
+        // Shared Tooltip Callback Option
+        const commonTooltipOption = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) {
+                        return label.join(' ');
+                    } else {
+                        return label;
+                    }
+                }
+            }
+        };
+
+        // CHART 1: Feasibility Gap (Bar Chart)
+        const ctxGap = document.getElementById('chartGapFeasibility').getContext('2d');
+        const gapLabels = ['Baseline Aktual [W]', 'Titik BEP (@50k)', 'Proyeksi Utama [E]'].map(l => wrapLabel(l));
+        new Chart(ctxGap, {
+            type: 'bar',
+            data: {
+                labels: gapLabels,
+                datasets: [
+                    {
+                        label: 'Volume Pelanggan (Orang/Bulan)',
+                        data: [105, 242, 375],
+                        backgroundColor: ['#dc2626', '#d97706', '#2563eb'],
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Omzet Bulanan (@Rp50k)',
+                        data: [5250000, 12100000, 18750000],
+                        type: 'line',
+                        borderColor: '#0d9488',
+                        backgroundColor: '#0d9488',
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: commonTooltipOption,
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Pelanggan (Orang)' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: { drawOnChartArea: false },
+                        title: { display: true, text: 'Rupiah (Rp)' },
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp' + (value/1000000).toFixed(1) + 'M';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // CHART 2: Fixed Cost Breakdown (Doughnut Chart)
+        const ctxFixed = document.getElementById('chartFixedCosts').getContext('2d');
+        const fixedLabels = ['Sewa Tempat', 'Gaji Barber', 'Listrik', 'Maintenance', 'Marketing', 'WiFi', 'Bahan Habis'].map(l => wrapLabel(l));
+        new Chart(ctxFixed, {
+            type: 'doughnut',
+            data: {
+                labels: fixedLabels,
+                datasets: [{
+                    data: [1666667, 1500000, 1000000, 800000, 500000, 280000, 300000],
+                    backgroundColor: [
+                        '#1e3a8a', '#2563eb', '#0d9488', '#d97706', '#8b5cf6', '#06b6d4', '#64748b'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: commonTooltipOption,
+                    legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } }
+                }
+            }
+        });
+
+        // CHART 3: Margin Contribution Comparison (Grouped Bar Chart)
+        const ctxMargin = document.getElementById('chartMarginCompare').getContext('2d');
+        const marginLabels = ['Harga Rp40rb [D]', 'Harga Rp50rb [W]'].map(l => wrapLabel(l));
+        new Chart(ctxMargin, {
+            type: 'bar',
+            data: {
+                labels: marginLabels,
+                datasets: [
+                    {
+                        label: 'Biaya Variabel (Komisi)',
+                        data: [25000, 25000],
+                        backgroundColor: '#f87171'
+                    },
+                    {
+                        label: 'Margin Kontribusi (CM)',
+                        data: [15000, 25000],
+                        backgroundColor: '#10b981'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: commonTooltipOption,
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: {
+                        stacked: true,
+                        ticks: {
+                            callback: function(val) { return 'Rp' + (val/1000) + 'k'; }
+                        }
+                    }
+                }
+            }
+        });
+
+        // CHART 4: 5-Year Cash Flow Projection (Line Chart)
+        const ctxCF = document.getElementById('chartCashFlow5Years').getContext('2d');
+        new Chart(ctxCF, {
+            type: 'line',
+            data: {
+                labels: ['Tahun 0', 'Tahun 1', 'Tahun 2', 'Tahun 3', 'Tahun 4', 'Tahun 5'],
+                datasets: [{
+                    label: 'Akumulasi Arus Kas Bersih (Rp)',
+                    data: [-35000000, 4940000, 44880000, 84820000, 124760000, 164700000],
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    borderWidth: 3,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#1e3a8a'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: commonTooltipOption,
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp' + (value/1000000).toFixed(0) + ' Jt';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // CHART 5: Stress Test Sensitivity (Horizontal Bar Chart)
+        const ctxStress = document.getElementById('chartStressTest').getContext('2d');
+        const stressLabels = [
+            'Normal (375 Cust)',
+            'Vol -10% (338 Cust)',
+            'Vol -20% (300 Cust)',
+            'Vol -30% (263 Cust)',
+            'Vol -40% (225 Cust)',
+            'Biaya Ops +10%',
+            'Biaya Ops +20%',
+            'Vol -10% & Biaya +10%'
+        ].map(l => wrapLabel(l));
+
+        new Chart(ctxStress, {
+            type: 'bar',
+            data: {
+                labels: stressLabels,
+                datasets: [{
+                    label: 'OCF Bulanan (Rp)',
+                    data: [3328333, 2390833, 1453333, 515833, -421667, 1790000, 240000, 940000],
+                    backgroundColor: [
+                        '#16a34a', '#2563eb', '#2563eb', '#d97706', '#dc2626', '#64748b', '#64748b', '#d97706'
+                    ],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: commonTooltipOption,
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            callback: function(val) {
+                                return 'Rp' + (val/1000000).toFixed(1) + 'M';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // INTERACTIVE SIMULATOR LOGIC
+        function setScenario(vol, price) {
+            document.getElementById('slider-vol').value = vol;
+            const radios = document.getElementsByName('sim-price');
+            for (let r of radios) {
+                if (parseInt(r.value) === price) r.checked = true;
+            }
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            const vol = parseInt(document.getElementById('slider-vol').value);
+            const price = parseInt(document.querySelector('input[name="sim-price"]:checked').value);
+            
+            document.getElementById('slider-vol-val').innerText = vol + " Pelanggan";
+
+            const revenue = vol * price;
+            const varCost = vol * 25000; // Rp25,000 commission [E]
+            const fixedCost = 6046667;   // Rp6,046,667 fixed costs
+            const ocf = revenue - varCost - fixedCost;
+            const cm = price - 25000;
+            const annualOcf = ocf * 12;
+
+            document.getElementById('sim-revenue').innerText = 'Rp' + revenue.toLocaleString('id-ID');
+            document.getElementById('sim-varcost').innerText = 'Rp' + varCost.toLocaleString('id-ID');
+            document.getElementById('sim-cm-val').innerText = 'Rp' + cm.toLocaleString('id-ID');
+
+            const ocfEl = document.getElementById('sim-ocf');
+            const statusBadge = document.getElementById('sim-status-badge');
+            const ocfAnnualEl = document.getElementById('sim-ocf-annual');
+
+            if (ocf >= 0) {
+                ocfEl.innerText = '+Rp' + ocf.toLocaleString('id-ID');
+                ocfEl.className = 'text-xl font-extrabold text-emerald-400';
+                ocfAnnualEl.innerText = '+Rp' + (annualOcf/1000000).toFixed(2) + ' Jt';
+                ocfAnnualEl.className = 'text-emerald-400 font-bold';
+
+                if (vol >= 300) {
+                    statusBadge.innerText = 'PROFITABEL (OPTIMAL)';
+                    statusBadge.className = 'px-2.5 py-1 rounded-md text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+                } else {
+                    statusBadge.innerText = 'BEP LAYAK (MARGINAL)';
+                    statusBadge.className = 'px-2.5 py-1 rounded-md text-xs font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+                }
+            } else {
+                ocfEl.innerText = '-Rp' + Math.abs(ocf).toLocaleString('id-ID');
+                ocfEl.className = 'text-xl font-extrabold text-rose-400';
+                ocfAnnualEl.innerText = '-Rp' + Math.abs(annualOcf/1000000).toFixed(2) + ' Jt';
+                ocfAnnualEl.className = 'text-rose-400 font-bold';
+
+                statusBadge.innerText = 'DEFISIT (RUGI OPERASIONAL)';
+                statusBadge.className = 'px-2.5 py-1 rounded-md text-xs font-extrabold bg-rose-500/20 text-rose-400 border border-rose-500/30';
+            }
+        }
+
+        // Initialize simulator on load
+        window.onload = function() {
+            updateSimulation();
+        };
+    </script>
+</body>
+</html>
